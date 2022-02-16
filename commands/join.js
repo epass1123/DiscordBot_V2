@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { joinVoiceChannel } = require('@discordjs/voice');
+
 require('dotenv').config();
 
 module.exports = {
