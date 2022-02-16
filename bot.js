@@ -3,9 +3,9 @@ const fs = require('fs');
 // const Database = require('./config/Database.js');
 require('dotenv').config();
 
-const db = new Database();
+// const db = new Database();
 
-db.connect();
+// db.connect();
 
 const client = new Client({ 
 	intents: [ 
