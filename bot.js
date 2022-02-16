@@ -1,6 +1,6 @@
 const { Client, Collection ,Intents } = require('discord.js');
 const fs = require('fs');
-const Database = require('./config/Database.js');
+// const Database = require('./config/Database.js');
 require('dotenv').config();
 
 const db = new Database();
