@@ -1,3 +1,3 @@
 // Procfile
 
-worker : npm run start
+worker : npm start
