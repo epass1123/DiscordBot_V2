@@ -53,6 +53,7 @@ module.exports = {
 			.setRequired(true)
 		),
 	async execute(interaction) {
+		console.log(interaction);
 		const vc = interaction.member.voice.channel;
 		const {
 			channel,
@@ -61,7 +62,6 @@ module.exports = {
 		if (!vc) {
 			return interaction.reply("채널에 먼저 참가하세요.")
 		} else {
-
 			const connection = joinVoiceChannel({
 				channelId: vc.id,
 				guildId: interaction.guildId,
