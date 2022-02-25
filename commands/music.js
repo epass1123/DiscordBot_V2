@@ -10,36 +10,42 @@ const {
 	createAudioPlayer,
 	NoSubscriberBehavior,
 	createAudioResource,
+	generateDependencyReport,
+	AudioPlayerStatus
 } = require('@discordjs/voice');
 
 const search = require('yt-search');
 const fs = require('fs');
 const ytdl = require("ytdl-core");
+const streamOptions = {
+	seek: 0,
+	volume: 1
+};
 var servers = {};
 let playList = [];
 require('dotenv').config();
 
-function play(connection, message) {
-	var server = servers[message.guild.id];
+// function play(connection, message) {
+// 	var server = servers[message.guild.id];
 
-	server.dispatcher = connection.playStream(ytdl(server.queue[0], {
-		filter: "audioonly",
-		highWaterMark: 1 << 25
-	}), streamOptions);
-	server.queue.shift();
+// 	server.dispatcher = connection.playStream(ytdl(server.queue[0], {
+// 		filter: "audioonly",
+// 		highWaterMark: 1 << 25
+// 	}), streamOptions);
+// 	server.queue.shift();
 
-	server.dispatcher.on("end", function () {
-		if (server.queue[0]) {
-			setTimeout(() => {
-				play(connection, message);
-				playList.shift();
-			}, 5000);
+// 	server.dispatcher.on("end", function () {
+// 		if (server.queue[0]) {
+// 			setTimeout(() => {
+// 				play(connection, message);
+// 				playList.shift();
+// 			}, 5000);
 
-		} else {
-			connection.disconnect();
-		}
-	});
-}
+// 		} else {
+// 			connection.disconnect();
+// 		}
+// 	});
+// }
 
 
 module.exports = {
@@ -53,7 +59,6 @@ module.exports = {
 			.setRequired(true)
 		),
 	async execute(interaction) {
-		console.log(interaction);
 		const vc = interaction.member.voice.channel;
 		const {
 			channel,
@@ -67,15 +72,14 @@ module.exports = {
 				guildId: interaction.guildId,
 				adapterCreator: interaction.guild.voiceAdapterCreator,
 			});
-
 			const player = createAudioPlayer({
 				behaviors: {
 					noSubscriber: NoSubscriberBehavior.Pause,
 				}
 			})
+			connection.subscribe(player);
 
 			const song = options.getString("제목");
-			console.log("서치전")
 			await search({
 					query: song,
 					pageStart: 1,
@@ -87,7 +91,6 @@ module.exports = {
 							queue: []
 						}
 						var server = servers[interaction.guild.id];
-						console.log("서치후")
 						let ytResults = r.videos;
 						ytResults.splice(10);
 						let i = 0;
@@ -96,23 +99,14 @@ module.exports = {
 							return i + ") " + result.title + '  \:arrow_forward:  ' + result.timestamp;
 						});
 
-						//  //노래검색 완료전에 다시 노래 검색하면 리턴.
-						//  if(checkOverlap){
-						//     message.channel.send("먼저 노래를 고르세요!");
-						//     return;
-						// }
-
 						interaction.reply({
 							embeds: [{
 								title: '번호로 노래를 고르세요',
 								description: titles.join("\n"),
 							}]
 						}).catch(err => console.log(err));
-						// checkOverlap = true;
 
-						console.log("필터생성")
 						const filter = (m) => {
-							// console.log(m)
 							if (m.author.id === interaction.user.id &&
 								m.content >= 1 &&
 								m.content <= ytResults.length) {
@@ -120,19 +114,20 @@ module.exports = {
 							}
 						};
 
-						console.log("selected1");
 						const collected = await interaction.channel.createMessageCollector({
 							filter,
 							max: 1,
 						});
-						2
-						console.log("selected2");
 
 						collected.on('collect', (message) => {
 							let selected = ytResults[message.content - 1];
-							console.log(selected);
+							stream = ytdl(selected.url, {
+								filter: "audioonly",
+								highWaterMark: 1 << 25,
+							}, streamOptions);
+							resource = createAudioResource(stream);
+							console.log(resource)
 							server.queue.push(selected.url);
-
 
 							playList.push({
 								user: interaction.user.username,
@@ -148,21 +143,22 @@ module.exports = {
 							interaction.editReply({
 								embeds: [newSong]
 							});
-
 							channel.bulkDelete(1)
 								.then(msg => console.log(`${msg.size}만큼 삭제 완료`))
 								.catch(console.error);
+
+							
+							player.on(AudioPlayerStatus.Idle, () =>{
+								player.stop();
+								connection.destroy();
+							})
+
+							player.on('error', error => {
+								console.error('Error:', error.message, 'with track', error.resource.metadata.title);
+							});
+							player.play(resource);
 						})
 
-						checkOverlap = false;
-						if (interaction.guild.voiceConnection) interaction.member.voiceChannel.join()
-							.then((connection) => {
-								play(connection, message);
-							});
-						if (interaction.guild.voiceConnection && !playList[1]) interaction.member.voiceChannel.join()
-							.then((connection) => {
-								play(connection, message);
-							});
 					}
 					if (err) throw err;
 				}
