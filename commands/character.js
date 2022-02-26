@@ -7,13 +7,15 @@ const {
     MessageEmbed
 } = require('discord.js');
 const request = require("request");
-var url = "http://152.70.248.4:5000/userinfo/"
 
-async function crawl(nick) {
-    url = url + encodeURI(nick);
-    const result = await request(url, function (err, res, body) {
-    });
-    return result;
+function crawl(nick) {
+    var url = "http://152.70.248.4:5000/userinfo/"
+    return new Promise(resolve => {
+        url = url + encodeURI(nick);
+        request(url, function (err, res, body) {
+            resolve(JSON.parse(res.body));
+        });
+    })
 }
 
 module.exports = {
@@ -32,18 +34,19 @@ module.exports = {
             channel,
             options
         } = interaction;
-        
-        const character = String(options.getString("캐릭터명"));
-        const result = await crawl(character);
-        console.log(result)
+
+        const name = String(options.getString("캐릭터명"));
+        const result = await crawl(name);
         const Response = new MessageEmbed()
             .setColor("RANDOM")
-            // .setThumbnail(result);
+            .setDescription(`이름: ${result.Basic.Name}
+            서버: ${result.Basic.Server}`)
+            .setThumbnail(result.Basic.Class.Icon);
 
-        // await interaction.reply({
-        //     content: `${character}님의 정보`,
-        //     embeds: [Response]
-        // });
+        interaction.reply({
+            content: `${name}님의 정보`,
+            embeds: [Response]
+        });
 
     },
 };
