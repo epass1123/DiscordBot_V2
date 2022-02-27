@@ -13,7 +13,7 @@ function crawl(nick) {
     return new Promise(resolve => {
         url = url + encodeURI(nick);
         request(url, function (err, res, body) {
-            if (error) {
+            if (err) {
                 resolve(err)
             } else {
                 resolve(JSON.parse(res.body));
