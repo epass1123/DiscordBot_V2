@@ -14,7 +14,7 @@ function crawl(nick) {
         url = url + encodeURI(nick);
         request(url, function (err, res, body) {
             if (error) {
-                
+                resolve(err)
             } else {
                 resolve(JSON.parse(res.body));
             }
