@@ -25,29 +25,6 @@ var servers = {};
 let playList = [];
 require('dotenv').config();
 
-// function play(connection, message) {
-// 	var server = servers[message.guild.id];
-
-// 	server.dispatcher = connection.playStream(ytdl(server.queue[0], {
-// 		filter: "audioonly",
-// 		highWaterMark: 1 << 25
-// 	}), streamOptions);
-// 	server.queue.shift();
-
-// 	server.dispatcher.on("end", function () {
-// 		if (server.queue[0]) {
-// 			setTimeout(() => {
-// 				play(connection, message);
-// 				playList.shift();
-// 			}, 5000);
-
-// 		} else {
-// 			connection.disconnect();
-// 		}
-// 	});
-// }
-
-
 module.exports = {
 
 	data: new SlashCommandBuilder()
