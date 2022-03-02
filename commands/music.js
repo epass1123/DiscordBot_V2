@@ -23,6 +23,7 @@ const streamOptions = {
 };
 var servers = {};
 let playList = [];
+let checkOverlap;
 require('dotenv').config();
 
 module.exports = {
@@ -44,11 +45,13 @@ module.exports = {
 		if (!vc) {
 			return interaction.reply("채널에 먼저 참가하세요.")
 		} else {
+			
 			const connection = joinVoiceChannel({
 				channelId: vc.id,
 				guildId: interaction.guildId,
 				adapterCreator: interaction.guild.voiceAdapterCreator,
 			});
+			checkOverlap = true;
 			const player = createAudioPlayer({
 				behaviors: {
 					noSubscriber: NoSubscriberBehavior.Pause,
@@ -98,14 +101,14 @@ module.exports = {
 
 						collected.on('collect', (message) => {
 							let selected = ytResults[message.content - 1];
-							stream = ytdl(selected.url, {
+							server.queue.push(selected.url);
+							stream = ytdl(server.queue[0], {
 								filter: "audioonly",
 								highWaterMark: 1 << 25,
 							}, streamOptions);
 							resource = createAudioResource(stream);
 							console.log(resource)
-							server.queue.push(selected.url);
-
+							
 							playList.push({
 								user: interaction.user.username,
 								songTitle: selected.title
