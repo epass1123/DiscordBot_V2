@@ -98,6 +98,7 @@ module.exports = {
                 value: `
                \`공격력\`: ${Stat.Attack}
                \`최대생명력\`: ${Stat.Health}
+               
                \`치명\`: ${Stat.Critical}
                \`특화\`: ${Stat.Specialty}
                \`제압\`: ${Stat.Subdue}

@@ -11,20 +11,24 @@ const {
 	NoSubscriberBehavior,
 	createAudioResource,
 	generateDependencyReport,
-	AudioPlayerStatus
+	AudioPlayerStatus,
+	entersState
 } = require('@discordjs/voice');
 
 const search = require('yt-search');
 const fs = require('fs');
 const ytdl = require("ytdl-core");
+const { connection } = require("mongoose");
 const streamOptions = {
 	seek: 0,
 	volume: 1
 };
 var servers = {};
 let playList = [];
-let checkOverlap;
+let checkOverlap = null;
+var player;
 require('dotenv').config();
+
 
 module.exports = {
 
@@ -45,19 +49,13 @@ module.exports = {
 		if (!vc) {
 			return interaction.reply("채널에 먼저 참가하세요.")
 		} else {
-			
+
 			const connection = joinVoiceChannel({
 				channelId: vc.id,
 				guildId: interaction.guildId,
 				adapterCreator: interaction.guild.voiceAdapterCreator,
 			});
-			checkOverlap = true;
-			const player = createAudioPlayer({
-				behaviors: {
-					noSubscriber: NoSubscriberBehavior.Pause,
-				}
-			})
-			connection.subscribe(player);
+
 
 			const song = options.getString("제목");
 			await search({
@@ -100,43 +98,75 @@ module.exports = {
 						});
 
 						collected.on('collect', (message) => {
-							let selected = ytResults[message.content - 1];
+
+							selected = ytResults[message.content - 1];
+
 							server.queue.push(selected.url);
-							stream = ytdl(server.queue[0], {
-								filter: "audioonly",
-								highWaterMark: 1 << 25,
-							}, streamOptions);
-							resource = createAudioResource(stream);
-							console.log(resource)
+							console.log(server.queue);
+
 							
 							playList.push({
 								user: interaction.user.username,
 								songTitle: selected.title
 							});
-
+	
 							const newSong = new MessageEmbed()
 								.setColor('RANDOM')
 								.setTitle(selected.title)
 								.setURL(selected.url)
 								.setDescription(selected.description)
 								.setThumbnail(selected.thumbnail);
+	
 							interaction.editReply({
 								embeds: [newSong]
 							});
 							channel.bulkDelete(1)
-								.then(msg => console.log(`${msg.size}만큼 삭제 완료`))
+								.then()
 								.catch(console.error);
-
-							
-							player.on(AudioPlayerStatus.Idle, () =>{
-								player.stop();
-								connection.destroy();
-							})
-
+	
+							if (!checkOverlap) {
+								var stream = ytdl(server.queue[0], {
+									filter: "audioonly",
+									highWaterMark: 1 << 25,
+								}, streamOptions);
+	
+								resource = createAudioResource(stream);
+	
+								player = createAudioPlayer({
+									behaviors: {
+										noSubscriber: NoSubscriberBehavior.Pause,
+									}
+								})
+								connection.subscribe(player);
+								checkOverlap = true;
+								player.play(resource);
+								server.queue.shift();
+							}
+	
 							player.on('error', error => {
-								console.error('Error:', error.message, 'with track', error.resource.metadata.title);
+								console.error(error);
 							});
-							player.play(resource);
+	
+							player.on(AudioPlayerStatus.Idle, () => {
+								const nextSong = server.queue.shift();
+								if (nextSong) {
+									var song = ytdl(nextSong, {
+										filter: "audioonly",
+										highWaterMark: 1 << 25,
+									}, streamOptions);
+									const result = createAudioResource(song);
+									player.play(result);
+								}
+								else{
+									console.log("Nothing in queue")
+									// player.stop();
+									// connection.destroy();
+								}
+							});
+	
+							player.on('stateChange', (oldState, newState) => {
+								console.log(`Audio player transitioned from ${oldState.status} to ${newState.status}`);
+							});
 						})
 
 					}
@@ -149,4 +179,12 @@ module.exports = {
 			});
 		}
 	},
+
+	// data: new SlashCommandBuilder()
+	// 	.setName('스킵')
+	// 	.setDescription('노래를 스킵한다.')
+	// 	,
+	// async execute(interaction) {
+
+	// }
 };
