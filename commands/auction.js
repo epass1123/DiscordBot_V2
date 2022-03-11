@@ -66,6 +66,7 @@ module.exports = {
                     .catch(console.error);
                 return interaction.channel.send({
                     embeds: [{
+                        title:`${price}골드에 대한 경매 적정가`,
                         color: 'FUCHSIA',
                         description: `4인 레이드 기준 
                         경매 적정가: ${goodPrice}골드
@@ -80,6 +81,7 @@ module.exports = {
                     .catch(console.error);
                 return interaction.channel.send({
                     embeds: [{
+                        title:`${price}골드에 대한 경매 적정가`,
                         color: 'FUCHSIA',
                         description: `8인 레이드 기준
                         경매 적정가: ${goodPrice}골드

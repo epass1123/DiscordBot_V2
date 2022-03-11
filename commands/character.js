@@ -96,14 +96,19 @@ module.exports = {
             .setLabel('스킬 목록')
             .setStyle('SECONDARY'),
             new MessageButton()
+            .setCustomId('카드')
+            .setLabel('카드 & 수집품')
+            .setStyle('SECONDARY'),
+            new MessageButton()
             .setCustomId('목록')
             .setLabel('캐릭터 목록')
             .setStyle('SECONDARY'),
+
         )
 
         const charInfo = new MessageEmbed()
             .setFields({
-                name: "캐릭터 정보\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b",
+                name: "캐릭터 정보                                          ",
                 value: `
                \`클래스\`: ${Class.Name}
                \`서 버\`: ${result.Basic.Server}
@@ -147,28 +152,30 @@ module.exports = {
 
         const Item = new MessageEmbed()
             .setFields({
-                name: `\:white_check_mark\: ${result.Items["머리 방어구"].Name} | \`품질\`${result.Items["머리 방어구"].Quality|| ``}`,
+                name: ` \:small_blue_diamond\: ${result.Items["머리 방어구"].Name} | \`품질\`${result.Items["머리 방어구"].Quality|| ``}`,
                 value: `
                     ${result.Items["머리 방어구"].Tri.map(x=>{return `\`${x.SkillName}\`${x.Effect}\n`}).join("")}
 
-                    \:white_check_mark\: \**${result.Items["상의"].Name} | \`품질\`${result.Items["상의"].Quality|| ``}\**
+                     \:small_blue_diamond\: \**${result.Items["상의"].Name} | \`품질\`${result.Items["상의"].Quality|| ``}\**
                     ${result.Items["상의"].Tri.map(x=>{return `\`${x.SkillName}\`${x.Effect}\n`}).join("")}
                     
-                    \:white_check_mark\: \**${result.Items["하의"].Name} | \`품질\`${result.Items["하의"].Quality || ``}\**
+                     \:small_blue_diamond\: \**${result.Items["하의"].Name} | \`품질\`${result.Items["하의"].Quality || ``}\**
                     ${result.Items["하의"].Tri.map(x=>{return `\`${x.SkillName}\`${x.Effect}\n`}).join("")}
-                                        
+                    
+                    \**\`팔찌\`: ${result.Items["팔찌"].Name}\**
+                    ${result.Items["팔찌"].Plus ? result.Items["팔찌"].Plus.map(x=>{return `${x}\n`}).join("") : " "}
                     `,
                 inline: true,
             }, {
-                name: `\:white_check_mark\: ${result.Items["어깨 방어구"].Name} | \`품질\`${result.Items["어깨 방어구"].Quality|| ``}`,
+                name: ` \:small_blue_diamond\: ${result.Items["어깨 방어구"].Name} | \`품질\`${result.Items["어깨 방어구"].Quality||" "}`,
                 value: `
                     ${result.Items["어깨 방어구"].Tri.map(x=>{return `\`${x.SkillName}\`${x.Effect}\n`}).join("")}
                     
-                    \:white_check_mark\: \**${result.Items["장갑"].Name} | \`품질\`${result.Items["장갑"].Quality|| ``}\**
+                    \:small_blue_diamond\: \**${result.Items["장갑"].Name} | \`품질\`${result.Items["장갑"].Quality||" "}\**
                     ${result.Items["장갑"].Tri.map(x=>{return `\`${x.SkillName}\`${x.Effect}\n`}).join("")}
 
-                    \**\`팔찌\`: ${result.Items["팔찌"].Name}\**
-                    ${''||result.Items["팔찌"].Plus.map(x=>{return `${x}\n`}).join("")}
+                    \:small_blue_diamond\: \**${result.Items["무기"].Name} | \`품질\`${result.Items["무기"].Quality||" "}\**
+                    ${result.Items["무기"].Tri.map(x=>{return `\`${x.SkillName}\`${x.Effect}\n`}).join("")}
                     `,
                 inline: true
             })
@@ -176,21 +183,93 @@ module.exports = {
 
         const acc = new MessageEmbed()
             .setFields({
-                name: `장신구 정보`,
+                name: `\:small_orange_diamond\: ${result.Items["어빌리티 스톤"].Name}     `,
                 value: `
-                \:white_check_mark\:\`어빌리티 스톤\`: ${result.Items["어빌리티 스톤"].Name} | ${result.Items["어빌리티 스톤"].Plus|| ``} ${result.Items["어빌리티 스톤"].Engrave.map(x=>{return `${x.EngraveName}${x.Effect}`})}
-                \:white_check_mark\: 목걸이: ${result.Items["목걸이"].Name} | ${result.Items["목걸이"].Plus|| ``} | 품질: ${result.Items["목걸이"].Quality|| ``} 
-                ${result.Items["목걸이"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
-                \:white_check_mark\: 귀걸이1: ${result.Items["귀걸이1"].Name} | ${result.Items["귀걸이1"].Plus|| ``} | 품질: ${result.Items["귀걸이1"].Quality|| ``} 
+                ${result.Items["어빌리티 스톤"].Plus|| ``}
+                ${result.Items["어빌리티 스톤"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
+                \:small_orange_diamond\: \**${result.Items["귀걸이1"].Name} | 품질: ${result.Items["귀걸이1"].Quality||" "}\**      
+                ${result.Items["귀걸이1"].Plus|| ``} 
                 ${result.Items["귀걸이1"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
-                \:white_check_mark\: 귀걸이2: ${result.Items["귀걸이2"].Name} | ${result.Items["귀걸이2"].Plus|| ``} | 품질: ${result.Items["귀걸이2"].Quality|| ``} 
-                ${result.Items["귀걸이2"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
-                \:white_check_mark\: 반 지1: ${result.Items["반지1"].Name} | ${result.Items["반지1"].Plus|| ``} | 품질: ${result.Items["반지1"].Quality|| ``} 
+                \:small_orange_diamond\: \**${result.Items["반지1"].Name} | 품질: ${result.Items["반지1"].Quality||" "}\**     
+                ${result.Items["반지1"].Plus|| ``}
                 ${result.Items["반지1"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
-                \:white_check_mark\: 반 지2: ${result.Items["반지2"].Name} | ${result.Items["반지2"].Plus|| ``} | 품질: ${result.Items["반지2"].Quality|| ``} 
-                ${result.Items["반지2"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}`,
+                `,
+                inline: true,
+            }, {
+                name: `\:small_orange_diamond\: ${result.Items["목걸이"].Name} | 품질: ${result.Items["목걸이"].Quality||" "} `,
+                value: `
+                ${result.Items["목걸이"].Plus|| ``}
+                ${result.Items["목걸이"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
+                \:small_orange_diamond\: \**${result.Items["귀걸이2"].Name} | 품질: ${result.Items["귀걸이2"].Quality||" "}\**
+                ${result.Items["귀걸이2"].Plus|| ``}
+                ${result.Items["귀걸이2"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
+                \:small_orange_diamond\: \**${result.Items["반지2"].Name} | 품질: ${result.Items["반지2"].Quality||" "}\**
+                ${result.Items["반지2"].Plus|| ``}
+                ${result.Items["반지2"].Engrave.map(x=>{return `\`${x.EngraveName}\`${x.Effect}\n`}).join("")}
+                `,
+                inline: true,
+            })
+            .setTitle("장신구 정보")
+
+        const Jewl = new MessageEmbed()
+            .setFields({
+                name: "보석 정보",
+                value: `
+            ${result.Jewl.map(x=>{
+                return `\:small_orange_diamond\:\`${x.JewlName}\`: ${x.SkillName} | ${x.Effect}\n`
+            }).join("")}
+            `,
+                inline: true,
             })
 
+        const Skill = new MessageEmbed()
+            .setFields({
+                name: `사용중인 스킬 정보`,
+                value: `
+            ${result.Skill.Skill.map(x=>{
+                return `\`${x.Name}\` ${x.Level}렙 ${x.Tri}\n`
+            }).join("")}
+            `,
+                inline: true,
+            })
+
+        const CharacterList = new MessageEmbed()
+            .setFields({
+                name: "캐릭터 목록",
+                value: `
+            ${result.CharacterList.map(x=>{
+                return `
+                \:small_blue_diamond\:\**${x.Name}\**  
+                \`클래스\` ${x.Class} \`서버\` ${x.Server} \`레벨\` ${x.Level}\n`
+            }).join("")}
+            `,
+                inline: true,
+            })
+
+        const Card = new MessageEmbed()
+            .setFields({
+                name: `\:small_red_triangle\:카드`,
+                value: `
+                ${result.Card.map(x=>{
+                    return `\`${x.Name}\`
+                    ${x.Effect}\n
+                    `
+                }).join("")}
+
+                `,
+                inline: true,
+            },
+            {
+                name: `\:small_red_triangle\:수집품`,
+                value:`
+                ${result.Collections.map(x=>{
+                    return `\`${Object.keys(x)}\`: ${Object.values(x)}\n
+                    `
+                }).join("")}
+                `,
+                inline: true,
+            }
+            )
         interaction.reply({
             embeds: [charInfo],
             components: [row, row2]
@@ -205,47 +284,63 @@ module.exports = {
 
         const collector = interaction.channel.createMessageComponentCollector({
             filter,
-            time: 120 * 1000,
+            time: 60 * 1000,
         })
 
         collector.on("collect", async (ButtonInteraction) => {
             const id = ButtonInteraction.customId;
             if (id === "캐릭터") {
+                await ButtonInteraction.deferUpdate();
                 await interaction.editReply({
                     embeds: [charInfo],
                     components: [row, row2],
                 })
             }
             if (id === "장비") {
+                await ButtonInteraction.deferUpdate();
                 await interaction.editReply({
                     embeds: [Item],
                     components: [row, row2],
                 })
             }
             if (id === "장신구") {
+                await ButtonInteraction.deferUpdate();
                 await interaction.editReply({
                     embeds: [acc],
                     components: [row, row2],
                 })
             }
             if (id === "보석") {
+                await ButtonInteraction.deferUpdate();
                 await interaction.editReply({
-                    embeds: [Response],
+                    embeds: [Jewl],
                     components: [row, row2],
                 })
             }
             if (id === "스킬") {
+                await ButtonInteraction.deferUpdate();
                 await interaction.editReply({
-                    embeds: [Response],
+                    embeds: [Skill],
                     components: [row, row2],
                 })
             }
             if (id === "목록") {
+                await ButtonInteraction.deferUpdate();
                 await interaction.editReply({
-                    embeds: [Response],
+                    embeds: [CharacterList],
+                    components: [row, row2],
+                })
+            }
+            if (id === "카드") {
+                await ButtonInteraction.deferUpdate();
+                await interaction.editReply({
+                    embeds: [Card],
                     components: [row, row2],
                 })
             }
         })
+
+        collector.on('end', collected => console.log(`Collected ${collected.size} items`));
+
     },
 };
